@@ -1360,9 +1360,7 @@ Object.defineProperty(exports, "__esModule", {
 var helpers_1 = require("../utils/helpers");
 
 var Anchors = function Anchors() {
-  // TODO: update selector to only find #+something, not just #
-  // ie. don't run on placeholder links...
-  document.querySelectorAll('[href^="#"]').forEach(function (anchorLink) {
+  document.querySelectorAll('[href^="#"]:not([href="#"])').forEach(function (anchorLink) {
     anchorLink.addEventListener('click', function () {
       var section = document.querySelector(anchorLink.getAttribute('href'));
 
@@ -1553,7 +1551,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60186" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64406" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

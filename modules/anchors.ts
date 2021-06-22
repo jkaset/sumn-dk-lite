@@ -1,9 +1,7 @@
 import { access } from '../utils/helpers'
 
 const Anchors = () => {
-  // TODO: update selector to only find #+something, not just #
-  // ie. don't run on placeholder links...
-  document.querySelectorAll('[href^="#"]').forEach( (anchorLink: Element) => {
+  document.querySelectorAll('[href^="#"]:not([href="#"])').forEach( (anchorLink: Element) => {
     anchorLink.addEventListener('click', function() {
       let section = document.querySelector(anchorLink.getAttribute('href'))
       if (section) {
