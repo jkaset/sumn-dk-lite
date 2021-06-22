@@ -1,0 +1,54 @@
+<style>
+  button {
+    padding: 0;
+    background-color: transparent;
+  }
+  button:focus-visible {
+    outline-color: currentColor;
+  }
+
+  @media (max-width: 991px) {
+    [dk-nav-toggle] {
+      display: block;
+      cursor: pointer;
+    }
+    [dk-nav] .m-navmenu {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 400ms ease, transform 400ms ease;
+    }
+    [dk-nav].open .m-navmenu {
+      transform: translateY(0);
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  [dk-dialog] {
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transition:
+      visibility 400ms ease,
+      opacity 250ms ease;
+  }
+  .a-modalplayer {
+    transform: translateY(50px);
+    opacity: 0;
+    transition:
+      transform 500ms ease-in-out 250ms,
+      opacity 500ms ease-in-out 250ms;
+  }
+  [dk-dialog].open {
+    display: flex !important;
+    visibility: visible;
+    opacity: 1;
+  }
+  [dk-dialog].open .a-modalplayer {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  .m-modalclose {
+    background-color: transparent;
+  }
+</style>
