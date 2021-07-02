@@ -878,27 +878,23 @@ function () {
       window.addEventListener('resize', function (event) {
         clearTimeout(timeoutFunctionId);
         timeoutFunctionId = setTimeout(function () {
-          var _a, _b;
+          var _a, _b, _c; // if not mobile and shown, hide then remove aria hidden
 
-          if (_this.shown) _this.hide(event);
-          if (!_this.mobile) (_a = _this.menu) === null || _a === void 0 ? void 0 : _a.removeAttribute('aria-hidden');
-          if (_this.mobile && !_this.shown) (_b = _this.menu) === null || _b === void 0 ? void 0 : _b.setAttribute('aria-hidden', 'true');
+
+          if (!_this.mobile && _this.shown) {
+            _this.hide(event);
+
+            (_a = _this.menu) === null || _a === void 0 ? void 0 : _a.removeAttribute('aria-hidden');
+          } // if not mobile, generally, make sure aria-hidden is gone
+
+
+          if (!_this.mobile) {
+            (_b = _this.menu) === null || _b === void 0 ? void 0 : _b.removeAttribute('aria-hidden');
+          } // if mobile and not shown, make sure aria-hidden is true
+
+
+          if (_this.mobile && !_this.shown) (_c = _this.menu) === null || _c === void 0 ? void 0 : _c.setAttribute('aria-hidden', 'true');
         }, 350);
-      });
-    };
-
-    this.dropdownToggleCreation = function (_event) {
-      var dropdownToggle = _this.element.querySelector('.a-nav__link.special');
-
-      if (!dropdownToggle) return;
-      dropdownToggle.addEventListener('click', function (event) {
-        var _a;
-
-        event.preventDefault();
-
-        if (_this.mobile) {
-          (_a = dropdownToggle === null || dropdownToggle === void 0 ? void 0 : dropdownToggle.parentElement) === null || _a === void 0 ? void 0 : _a.classList.toggle('open');
-        }
       });
     };
 
@@ -953,7 +949,6 @@ function () {
     this._id = this.element.getAttribute('dk-nav') || this.element.id;
     this.dkDialog.on('create', this.toggleCreation);
     this.dkDialog.on('create', this.menuCreation);
-    this.dkDialog.on('create', this.dropdownToggleCreation);
     this.dkDialog.on('create', this.handleClosers);
     this.dkDialog.on('show', this.handleShow);
     this.dkDialog.on('hide', this.handleHide);
@@ -972,18 +967,20 @@ function () {
     get: function get() {
       var _a;
 
+      if (this.element.getAttribute('dk-nav-mobile-always')) return true;
       return !((_a = this.mediaQuery) === null || _a === void 0 ? void 0 : _a.matches);
     },
     enumerable: false,
     configurable: true
   });
   Object.defineProperty(DKNav.prototype, "mediaQuery", {
+    // TODO: handle navs that should ALWAYS have toggle visible
     get: function get() {
       if (this._mediaQuery) return this._mediaQuery;
       var navBreakpoint = this.element.getAttribute('dk-nav-breakpoint');
       if (navBreakpoint === null) navBreakpoint = '991';
       var navBreakpointForMediaQuery = parseInt(navBreakpoint) + 1;
-      this._mediaQuery = window.matchMedia("(min-width: " + navBreakpointForMediaQuery + " px)");
+      this._mediaQuery = window.matchMedia("(min-width: " + navBreakpointForMediaQuery + "px)");
       return this._mediaQuery;
     },
     enumerable: false,
@@ -1461,6 +1458,103 @@ var Cards = function Cards() {
 };
 
 exports.default = Cards;
+},{"../utils/helpers":"utils/helpers.ts"}],"modules/dropdowns.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var helpers_1 = require("../utils/helpers");
+
+var Dropdowns = function Dropdowns() {
+  Array.from(document.querySelectorAll('[dk-dropdown-toggle]')).forEach(function (toggle) {
+    var opened = false;
+    var mobileOnly = false;
+
+    if (!(toggle.getAttribute('dk-mobile-only') === null)) {
+      mobileOnly = true;
+      var mobileBreakpoint = toggle.getAttribute('dk-mobile-only');
+      if (mobileBreakpoint === '#') mobileBreakpoint = '991';
+      var mobileBreakpointForMediaQuery = parseInt(mobileBreakpoint) + 1;
+      var mediaQuery_1 = window.matchMedia("(min-width: " + mobileBreakpointForMediaQuery + "px)");
+
+      var isDesktop_1 = function isDesktop_1() {
+        return mediaQuery_1.matches;
+      };
+
+      if (isDesktop_1) {
+        toggle.removeAttribute('aria-expanded');
+      } else {
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      var timeoutFunctionId_1;
+      window.addEventListener('resize', function () {
+        clearTimeout(timeoutFunctionId_1);
+        timeoutFunctionId_1 = setTimeout(function () {
+          if (isDesktop_1 && opened) {
+            closeDropdown();
+            toggle.removeAttribute('aria-expanded');
+          }
+
+          if (isDesktop_1) toggle.removeAttribute('aria-expanded');
+
+          if (!isDesktop_1 && opened) {
+            toggle.setAttribute('aria-expanded', 'true');
+          }
+        }, 350);
+      });
+    }
+
+    var dropdownID = toggle.getAttribute('dk-dropdown-toggle');
+
+    if (!(dropdownID === '#') && !(dropdownID === null)) {
+      var dropdown = document.getElementById(dropdownID);
+      if (!dropdown) return;
+      dropdown.setAttribute('role', 'menu');
+      var menuLinks = dropdown.getElementsByTagName('a');
+      Array.from(menuLinks).forEach(function (link) {
+        link.setAttribute('role', 'menuitem');
+      });
+    }
+
+    toggle = helpers_1.convertTag(toggle, 'button');
+    toggle.setAttribute('type', 'button');
+    if (!mobileOnly) toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function (event) {
+      handleToggleClick(event);
+    });
+
+    var handleToggleClick = function handleToggleClick(event) {
+      event.preventDefault();
+
+      if (!opened) {
+        openDropdown();
+      } else {
+        closeDropdown();
+      }
+    };
+
+    var openDropdown = function openDropdown() {
+      var _a;
+
+      toggle.setAttribute('aria-expanded', 'true');
+      (_a = toggle.parentElement) === null || _a === void 0 ? void 0 : _a.classList.add('open');
+      opened = true;
+    };
+
+    var closeDropdown = function closeDropdown() {
+      var _a;
+
+      toggle.setAttribute('aria-expanded', 'false');
+      (_a = toggle.parentElement) === null || _a === void 0 ? void 0 : _a.classList.remove('open');
+      opened = false;
+    };
+  });
+};
+
+exports.default = Dropdowns;
 },{"../utils/helpers":"utils/helpers.ts"}],"app.js":[function(require,module,exports) {
 "use strict";
 
@@ -1483,6 +1577,8 @@ var _anchors = _interopRequireDefault(require("./modules/anchors.ts"));
 
 var _cards = _interopRequireDefault(require("./modules/cards.ts"));
 
+var _dropdowns = _interopRequireDefault(require("./modules/dropdowns.ts"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var App = function App() {
@@ -1493,11 +1589,12 @@ var App = function App() {
   (0, _accordion.default)();
   (0, _anchors.default)();
   (0, _cards.default)();
+  (0, _dropdowns.default)();
 };
 
 var _default = App;
 exports.default = _default;
-},{"./modules/convertTags.ts":"modules/convertTags.ts","./modules/dialog.ts":"modules/dialog.ts","./modules/nav.ts":"modules/nav.ts","./modules/tabs.ts":"modules/tabs.ts","./modules/accordion.ts":"modules/accordion.ts","./modules/anchors.ts":"modules/anchors.ts","./modules/cards.ts":"modules/cards.ts"}],"index.js":[function(require,module,exports) {
+},{"./modules/convertTags.ts":"modules/convertTags.ts","./modules/dialog.ts":"modules/dialog.ts","./modules/nav.ts":"modules/nav.ts","./modules/tabs.ts":"modules/tabs.ts","./modules/accordion.ts":"modules/accordion.ts","./modules/anchors.ts":"modules/anchors.ts","./modules/cards.ts":"modules/cards.ts","./modules/dropdowns.ts":"modules/dropdowns.ts"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1551,7 +1648,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64406" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59977" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

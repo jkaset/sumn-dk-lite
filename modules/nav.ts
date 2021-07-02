@@ -20,7 +20,6 @@ class DKNav {
 
     this.dkDialog.on('create', this.toggleCreation)
     this.dkDialog.on('create', this.menuCreation)
-    this.dkDialog.on('create', this.dropdownToggleCreation)
     this.dkDialog.on('create', this.handleClosers)
 
     this.dkDialog.on('show', this.handleShow)
@@ -54,22 +53,18 @@ class DKNav {
     window.addEventListener('resize', (event) => {
       clearTimeout(timeoutFunctionId)
       timeoutFunctionId = setTimeout(() => {
-        if (this.shown) this.hide(event)
-        if (!this.mobile) this.menu?.removeAttribute('aria-hidden')
+        // if not mobile and shown, hide then remove aria hidden
+        if (!this.mobile && this.shown) {
+          this.hide(event)
+          this.menu?.removeAttribute('aria-hidden')
+        }
+        // if not mobile, generally, make sure aria-hidden is gone
+        if (!this.mobile) {
+          this.menu?.removeAttribute('aria-hidden')
+        }
+        // if mobile and not shown, make sure aria-hidden is true
         if (this.mobile && !this.shown) this.menu?.setAttribute('aria-hidden', 'true')
       }, 350)
-    })
-  }
-
-  dropdownToggleCreation = (_event: Event) => {
-    const dropdownToggle = this.element.querySelector('.a-nav__link.special')
-    if (!dropdownToggle) return
-
-    dropdownToggle.addEventListener('click', (event) => {
-      event.preventDefault()
-      if (this.mobile) {
-        dropdownToggle?.parentElement?.classList.toggle('open')
-      }
     })
   }
 
@@ -122,9 +117,11 @@ class DKNav {
   }
 
   get mobile() {
+    if (this.element.getAttribute('dk-nav-mobile-always')) return true
     return !this.mediaQuery?.matches
   }
 
+  // TODO: handle navs that should ALWAYS have toggle visible
   get mediaQuery(): MediaQueryList | null {
     if (this._mediaQuery) return this._mediaQuery
 
@@ -132,7 +129,7 @@ class DKNav {
     if (navBreakpoint === null) navBreakpoint = '991'
     const navBreakpointForMediaQuery = parseInt(navBreakpoint) + 1
 
-    this._mediaQuery = window.matchMedia(`(min-width: ${navBreakpointForMediaQuery} px)`)
+    this._mediaQuery = window.matchMedia(`(min-width: ${navBreakpointForMediaQuery}px)`)
     return this._mediaQuery
   }
 
