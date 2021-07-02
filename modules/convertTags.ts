@@ -12,14 +12,6 @@ const ConvertTags = () => {
       thisItem.setAttribute('type', 'button')
     }
   }
-
-  Array.from(document.querySelectorAll('.a-playbutton'))
-    .concat(Array.from(document.querySelectorAll('.m-athleteheader__videocta')))
-    .forEach( (buttonToBe) => {
-      buttonToBe = convertTag(buttonToBe, 'button')
-      buttonToBe.setAttribute('type', 'button')
-    })
-
 }
 
 export default ConvertTags
