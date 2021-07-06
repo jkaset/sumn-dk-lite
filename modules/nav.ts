@@ -33,7 +33,6 @@ class DKNav {
     convertTag(this.element.querySelector('[dk-nav-toggle]'), 'button')
     this.navToggle?.setAttribute('type', 'button')
     this.navToggle?.addEventListener('click', this.toggle)
-    this.navToggle?.addEventListener('keyup', this.dkDialog.bindButtonKeypress)
   }
 
   toggle = (event: Event) => {
@@ -53,7 +52,7 @@ class DKNav {
     window.addEventListener('resize', (event) => {
       clearTimeout(timeoutFunctionId)
       timeoutFunctionId = setTimeout(() => {
-        // if not mobile and shown, hide then remove aria hidden
+        // if not mobile and shown, hide, then remove aria hidden
         if (!this.mobile && this.shown) {
           this.hide(event)
           this.menu?.removeAttribute('aria-hidden')
@@ -74,9 +73,6 @@ class DKNav {
       .forEach((closer) => {
         closer.setAttribute('aria-label', 'Close menu')
         closer.addEventListener('click', this.dkDialog.hide)
-
-        // if (closer.getAttribute('role') !== 'button') return
-        // closer.addEventListener('keydown', this.dkDialog.bindButtonKeypress)
       })
   }
 
@@ -85,9 +81,6 @@ class DKNav {
     this.menu?.removeAttribute('aria-hidden')
     this.navToggle?.setAttribute('aria-expanded', 'true')
     this.navToggle?.setAttribute('aria-label', 'Close menu')
-    // Array.from(this.element.querySelectorAll('[dk-nav-hide]')).forEach((closer) => {
-
-    // })
     document.body.setAttribute('style', 'overflow: hidden;')
     document.addEventListener('click', this.closeOnOutsideClick, true)
   }
@@ -117,11 +110,10 @@ class DKNav {
   }
 
   get mobile() {
-    if (this.element.getAttribute('dk-nav-mobile-always')) return true
+    if (this.element.hasAttribute('dk-nav-mobile-always')) return true
     return !this.mediaQuery?.matches
   }
 
-  // TODO: handle navs that should ALWAYS have toggle visible
   get mediaQuery(): MediaQueryList | null {
     if (this._mediaQuery) return this._mediaQuery
 
@@ -147,7 +139,7 @@ class DKNav {
 
   get navToggle(): HTMLElement | null {
     if (this._navToggle) return this._navToggle
-    this._navToggle = document.querySelector('[dk-nav-toggle]')
+    this._navToggle = this.element.querySelector('[dk-nav-toggle]')
     return this._navToggle
   }
 }

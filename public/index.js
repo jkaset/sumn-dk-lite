@@ -214,11 +214,6 @@ var ConvertTags = function ConvertTags() {
       thisItem.setAttribute('type', 'button');
     }
   }
-
-  Array.from(document.querySelectorAll('.a-playbutton')).concat(Array.from(document.querySelectorAll('.m-athleteheader__videocta'))).forEach(function (buttonToBe) {
-    buttonToBe = helpers_1.convertTag(buttonToBe, 'button');
-    buttonToBe.setAttribute('type', 'button');
-  });
 };
 
 exports.default = ConvertTags;
@@ -689,10 +684,8 @@ function () {
       if (_this.modal) {
         _this.modalItself = document.querySelector('[dk-modal-itself]') || null;
 
-        _this.element.setAttribute('aria-modal', 'false'); // document.body.setAttribute('style', 'overflow:hidden; cursor:pointer;')
-
-      } // if (!this.modal) return
-
+        _this.element.setAttribute('aria-modal', 'false');
+      }
 
       _this.element.setAttribute('aria-hidden', 'true');
     };
@@ -719,7 +712,6 @@ function () {
 
     this.handleNormalOpeners = function () {
       Array.from(document.querySelectorAll("[dk-dialog-show=\"" + _this._id + "\"]")).forEach(function (opener) {
-        // console.log(this._id)
         opener.addEventListener('click', _this.dkDialog.show);
       });
     };
@@ -743,9 +735,6 @@ function () {
             _this.dkDialog.hide(event);
           });
         }
-
-        if (closer.getAttribute('role') !== 'button') return;
-        closer.addEventListener('keydown', _this.dkDialog.bindButtonKeypress);
       });
     };
 
@@ -770,12 +759,6 @@ function () {
         document.removeEventListener('click', _this.closeOnOutsideClick, true);
       }
 
-      var videoplayer = document.querySelector(".videoiframe");
-
-      if (videoplayer !== null) {
-        videoplayer.removeAttribute('src');
-      }
-
       _this.element.classList.remove('open');
 
       _this.element.setAttribute('aria-hidden', 'true');
@@ -783,7 +766,6 @@ function () {
 
     this._linkShow = function (event) {
       event.stopPropagation();
-      console.log('hey');
 
       _this.dkDialog.show(event);
 
@@ -803,8 +785,7 @@ function () {
       element: element,
       focusTrapQuery: '[dk-dialog]'
     });
-    this.cookie = this.element.hasAttribute('dk-dialog-cookies'); // this._id = this.element.getAttribute('dk-dialog') || this.element.id
-
+    this.cookie = this.element.hasAttribute('dk-dialog-cookies');
     this._id = this.element.id;
     this.dkDialog.on('create', this.modalConstruction);
     this.dkDialog.on('create', this.checkCookie);
@@ -851,12 +832,11 @@ function () {
     var _this = this;
 
     this.toggleCreation = function (_event) {
-      var _a, _b, _c;
+      var _a, _b;
 
       helpers_1.convertTag(_this.element.querySelector('[dk-nav-toggle]'), 'button');
       (_a = _this.navToggle) === null || _a === void 0 ? void 0 : _a.setAttribute('type', 'button');
       (_b = _this.navToggle) === null || _b === void 0 ? void 0 : _b.addEventListener('click', _this.toggle);
-      (_c = _this.navToggle) === null || _c === void 0 ? void 0 : _c.addEventListener('keyup', _this.dkDialog.bindButtonKeypress);
     };
 
     this.toggle = function (event) {
@@ -878,7 +858,7 @@ function () {
       window.addEventListener('resize', function (event) {
         clearTimeout(timeoutFunctionId);
         timeoutFunctionId = setTimeout(function () {
-          var _a, _b, _c; // if not mobile and shown, hide then remove aria hidden
+          var _a, _b, _c; // if not mobile and shown, hide, then remove aria hidden
 
 
           if (!_this.mobile && _this.shown) {
@@ -901,8 +881,7 @@ function () {
     this.handleClosers = function () {
       Array.from(document.querySelectorAll('[dk-nav-hide]')).concat(Array.from(document.querySelectorAll("[dk-nav-hide=\"" + _this._id + "\"]"))).forEach(function (closer) {
         closer.setAttribute('aria-label', 'Close menu');
-        closer.addEventListener('click', _this.dkDialog.hide); // if (closer.getAttribute('role') !== 'button') return
-        // closer.addEventListener('keydown', this.dkDialog.bindButtonKeypress)
+        closer.addEventListener('click', _this.dkDialog.hide);
       });
     };
 
@@ -913,9 +892,7 @@ function () {
 
       (_a = _this.menu) === null || _a === void 0 ? void 0 : _a.removeAttribute('aria-hidden');
       (_b = _this.navToggle) === null || _b === void 0 ? void 0 : _b.setAttribute('aria-expanded', 'true');
-      (_c = _this.navToggle) === null || _c === void 0 ? void 0 : _c.setAttribute('aria-label', 'Close menu'); // Array.from(this.element.querySelectorAll('[dk-nav-hide]')).forEach((closer) => {
-      // })
-
+      (_c = _this.navToggle) === null || _c === void 0 ? void 0 : _c.setAttribute('aria-label', 'Close menu');
       document.body.setAttribute('style', 'overflow: hidden;');
       document.addEventListener('click', _this.closeOnOutsideClick, true);
     };
@@ -967,14 +944,13 @@ function () {
     get: function get() {
       var _a;
 
-      if (this.element.getAttribute('dk-nav-mobile-always')) return true;
+      if (this.element.hasAttribute('dk-nav-mobile-always')) return true;
       return !((_a = this.mediaQuery) === null || _a === void 0 ? void 0 : _a.matches);
     },
     enumerable: false,
     configurable: true
   });
   Object.defineProperty(DKNav.prototype, "mediaQuery", {
-    // TODO: handle navs that should ALWAYS have toggle visible
     get: function get() {
       if (this._mediaQuery) return this._mediaQuery;
       var navBreakpoint = this.element.getAttribute('dk-nav-breakpoint');
@@ -1006,7 +982,7 @@ function () {
   Object.defineProperty(DKNav.prototype, "navToggle", {
     get: function get() {
       if (this._navToggle) return this._navToggle;
-      this._navToggle = document.querySelector('[dk-nav-toggle]');
+      this._navToggle = this.element.querySelector('[dk-nav-toggle]');
       return this._navToggle;
     },
     enumerable: false,
@@ -1648,7 +1624,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59977" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "49993" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

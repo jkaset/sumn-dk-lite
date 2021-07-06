@@ -16,7 +16,6 @@ class Dialog {
       focusTrapQuery: '[dk-dialog]',
     })
     this.cookie = this.element.hasAttribute('dk-dialog-cookies')
-    // this._id = this.element.getAttribute('dk-dialog') || this.element.id
     this._id = this.element.id
 
     this.dkDialog.on('create', this.modalConstruction)
@@ -38,10 +37,7 @@ class Dialog {
     if (this.modal) {
       this.modalItself = document.querySelector('[dk-modal-itself]') || null
       this.element.setAttribute('aria-modal', 'false')
-      // document.body.setAttribute('style', 'overflow:hidden; cursor:pointer;')
     }
-    // if (!this.modal) return
-
     this.element.setAttribute('aria-hidden', 'true')
   }
 
@@ -65,7 +61,6 @@ class Dialog {
 
   handleNormalOpeners = () => {
     Array.from(document.querySelectorAll(`[dk-dialog-show="${this._id}"]`)).forEach((opener) => {
-      // console.log(this._id)
       opener.addEventListener('click', this.dkDialog.show)
     })
   }
@@ -89,8 +84,6 @@ class Dialog {
             this.dkDialog.hide(event)
           })
         }
-        if (closer.getAttribute('role') !== 'button') return
-        closer.addEventListener('keydown', this.dkDialog.bindButtonKeypress)
       })
   }
 
@@ -111,18 +104,12 @@ class Dialog {
       document.removeEventListener('click', this.closeOnOutsideClick, true)
     }
 
-    let videoplayer = document.querySelector(".videoiframe")
-    if (videoplayer !== null) {
-      videoplayer.removeAttribute('src')
-    }
-
     this.element.classList.remove('open')
     this.element.setAttribute('aria-hidden', 'true')
   }
 
   _linkShow = (event: Event) => {
     event.stopPropagation()
-    console.log('hey')
     this.dkDialog.show(event)
     return this
   }
