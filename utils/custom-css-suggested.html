@@ -1,0 +1,120 @@
+<style>
+  /* TODO: opacity + visibility feels redundant, just use visibility? */
+
+  /* Webflow General */
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+  }
+  a {
+    color: inherit;
+  }
+  /* End Webflow General */
+
+  /* Accordions */
+  /* First child = button / toggle */
+  /* Second child = content / target */
+  [dk-accordion] > :nth-child(1) {
+    padding: 0;
+    background-color: transparent;
+  }
+  [dk-accordion] > :nth-child(1):focus-visible {
+    outline-color: currentColor;
+  }
+  [dk-accordion] > :nth-child(2) {
+    max-height: 0;
+    margin: 0;
+    overflow: hidden;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 250ms ease, opacity 500ms ease, max-height 350ms ease;
+    will-change: height;
+  }
+  /* When open, show the content / target */
+  /* And don't hide the content in the Editor */
+  [dk-accordion] [aria-expanded="true"] + :nth-child(2),
+  .w-editor [dk-accordion] > :nth-child(2) {
+    /* max-height may need to be adjusted based on content length */
+    max-height: 1000px;
+    overflow: visible;
+    visibility: visible;
+    opacity: 1;
+  }
+  /* End Accordions */
+
+  /* Cards */
+  [dk-card-front] {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 250ms ease, opacity 250ms ease, transform 250ms ease;
+  }
+  [dk-card-back] {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 250ms ease, opacity 250ms ease, transform 250ms ease;
+  }
+  [dk-card].flipped [dk-card-front],
+  [dk-card]:hover [dk-card-front] {
+    transform: rotateY(180deg);
+    visibility: hidden;
+    opacity: 0;
+  }
+  [dk-card].flipped [dk-card-back],
+  [dk-card]:hover [dk-card-back] {
+    transform: rotateY(0deg);
+    visibility: visible;
+    opacity: 1;
+  }
+  /* End Cards */
+
+  /* Dialog */
+  [dk-dialog] {
+    display: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 400ms ease, opacity 250ms ease;
+  }
+  [dk-dialog].open {
+    display: block;
+    visibility: visible;
+    opacity: 1;
+  }
+  /* End Dialog */
+
+  /* Dropdowns */
+  /* TODO: need to make dropdown starter styles / attributes */
+  /* End Dropdowns */
+
+  /* Nav */
+  [dk-nav] svg {
+    /* Make sure svgs in the nav can't mess up our click listeners */
+    pointer-events: none;
+  }
+
+  @media (max-width: 991px) {
+    [dk-nav-toggle] {
+      display: block;
+      cursor: pointer;
+    }
+    [dk-nav] nav {
+      transform: translateY(-100%);
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 400ms ease, transform 400ms ease;
+    }
+    [dk-nav].open nav {
+      transform: translateY(0);
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  /* End Nav */
+
+  /* Tabs */
+  [dk-tabs] [aria-selected="true"] {
+    /* styles for active tab */
+  }
+  /* End Tabs */
+
+</style>
