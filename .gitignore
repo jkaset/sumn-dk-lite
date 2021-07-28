@@ -1,13 +1,10 @@
-node_modules
-yarn-error.log
+node_modules/
+*.log
 key.pem
-# public
 .cache
 server/certs
 .DS_Store
-.env
-.env.local
-.env.staging
-.env.production
+.env.*
+!.env.example
 .vscode
 .tool-versions
