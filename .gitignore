@@ -8,3 +8,4 @@ server/certs
 !.env.example
 .vscode
 .tool-versions
+releases/
