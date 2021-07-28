@@ -1,3 +1,4 @@
+/* eslint-disable */
 export const focusableSelectors = [
   'a[href]:not([tabindex^="-"])',
   'area[href]:not([tabindex^="-"])',
@@ -10,7 +11,7 @@ export const focusableSelectors = [
   'audio[controls]:not([tabindex^="-"])',
   'video[controls]:not([tabindex^="-"])',
   '[contenteditable]:not([tabindex^="-"])',
-  '[tabindex]:not([tabindex^="-"])',
+  '[tabindex]:not([tabindex^="-"])'
 ]
 
 export const convertTag = (el: Element, tag: string) => {
@@ -24,41 +25,55 @@ export const convertTag = (el: Element, tag: string) => {
 }
 
 // https://gist.github.com/patrickfox/ee5a0d093e0ab9f76441f8339ab4b8e1
-export const access = (el, place_focus_before) => {
-  var focus_el, focus_method, ogti, onblur_el, onblur_temp_el, temp_el;
-  onblur_el = function(e) {
+export const access = (el: HTMLElement, placeFocusBefore: string | boolean) => {
+  let focusMethod: any, ogti: string, tempEl: HTMLElement
+
+  const onblurEl = function(e) {
     if (el.getAttribute('data-ogti')) {
       el.setAttribute('tabindex', ogti);
     } else {
       el.removeAttribute('tabindex');
     }
     el.removeAttribute('data-ogti');
-    el.removeEventListener('focusout', focus_method);
+    el.removeEventListener('focusout', focusMethod);
   };
-  onblur_temp_el = function(e) {
-    temp_el.removeEventListener('focusout', focus_method);
-    temp_el.parentNode.removeChild(temp_el);
+  const onblurTempEl = function(e) {
+    tempEl.removeEventListener('focusout', focusMethod);
+    tempEl.parentNode.removeChild(tempEl);
   };
-  focus_el = function(the_el) {
-    the_el.setAttribute('tabindex', '-1');
-    the_el.addEventListener('focusout', focus_method);
-    the_el.focus();
+  const focusEl = function(theEl: HTMLElement) {
+    theEl.setAttribute('tabindex', '-1');
+    theEl.addEventListener('focusout', focusMethod);
+    theEl.focus();
   };
-  focus_method = onblur_el;
-  if (place_focus_before) {
-    temp_el = document.createElement('span');
-    if (typeof place_focus_before === 'string') {
-      temp_el.innerHTML = place_focus_before;
+  focusMethod = onblurEl;
+  if (placeFocusBefore) {
+    tempEl = document.createElement('span');
+    if (typeof placeFocusBefore === 'string') {
+      tempEl.innerHTML = placeFocusBefore;
     }
-    temp_el.setAttribute('style', 'position: absolute;height: 1px;width: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0 0 0 0);border: 0;');
-    temp_el = el.parentNode.insertBefore(temp_el, el);
-    focus_method = onblur_temp_el;
-    focus_el(temp_el);
+    tempEl.setAttribute('style', 'position: absolute;height: 1px;width: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0 0 0 0);border: 0;');
+    tempEl = el.parentNode.insertBefore(tempEl, el);
+    focusMethod = onblurTempEl;
+    focusEl(tempEl);
   } else {
     ogti = el.getAttribute('tabindex');
     if (ogti) {
       el.setAttribute('data-ogti', ogti);
     }
-    focus_el(el);
+    focusEl(el);
+  }
+}
+
+export function throttle(callbackFunction: Function, limit: number) {
+  let tick = false
+  return function() {
+    if(!tick) {
+      callbackFunction()
+      tick = true
+      setTimeout( function() {
+        tick = false
+      }, limit)
+    }
   }
 }

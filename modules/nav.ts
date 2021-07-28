@@ -29,7 +29,7 @@ class DKNav {
     this.dkDialog.create()
   }
 
-  toggleCreation = (_event) => {
+  toggleCreation = (_event: Event) => {
     convertTag(this.element.querySelector('[dk-nav-toggle]'), 'button')
     this.navToggle?.setAttribute('type', 'button')
     this.navToggle?.addEventListener('click', this.toggle)
@@ -43,7 +43,7 @@ class DKNav {
     }
   }
 
-  menuCreation = (_event) => {
+  menuCreation = (_event: Event) => {
     if (this.mobile) {
       this.menu?.setAttribute('aria-hidden', 'true')
     }
@@ -76,7 +76,7 @@ class DKNav {
       })
   }
 
-  handleShow = (_event) => {
+  handleShow = (_event: Event) => {
     this.element.classList.add('open')
     this.menu?.removeAttribute('aria-hidden')
     this.navToggle?.setAttribute('aria-expanded', 'true')
@@ -85,7 +85,7 @@ class DKNav {
     document.addEventListener('click', this.closeOnOutsideClick, true)
   }
 
-  handleHide = (_event) => {
+  handleHide = (_event: Event) => {
     this.element.classList.remove('open')
     this.menu?.setAttribute('aria-hidden', 'true')
     this.navToggle?.setAttribute('aria-expanded', 'false')
@@ -145,8 +145,8 @@ class DKNav {
 }
 
 function Nav() {
-  Array.from(document.querySelectorAll('[dk-nav]')).forEach(function (element: HTMLElement) {
-    new DKNav(element)
+  Array.from(document.querySelectorAll('[dk-nav]')).forEach( (element) => {
+    new DKNav(element as HTMLElement)
   })
 }
 

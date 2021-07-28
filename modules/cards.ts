@@ -1,30 +1,31 @@
 import { convertTag } from '../utils/helpers'
 
 class DKCard {
+  card: HTMLElement
+  cardFront: Element
 
-  constructor(card) {
+  constructor(card: HTMLElement) {
 
     this.card = card
 
     // each card should be a list item
     if (this.card.tagName !== 'LI') {
-      console.warn('Cards must be list items')
+      console.warn('Cards should be list items')
     }
 
     // convert card FRONTS to buttons
-    this.cardFront = card.querySelector('[dk-card-front]')
+    this.cardFront = card.querySelector('[dk-card-front]') as HTMLElement
     if (!this.cardFront) {
       console.warn('Missing dk-card-front')
     }
     this.cardFront = convertTag(this.cardFront, 'button')
-    this.cardFront.setAttribute('role', 'button')
+    this.cardFront.setAttribute('type', 'button')
     this.cardFront.setAttribute('tabindex', '0')
 
     // give cardFront aria-label="Learn more about {card front content}"
     let cardFrontContent = this.cardFront.textContent || ''
-    this.cardFront.setAttribute('aria-label', 'Learn more about how we help you ' + cardFrontContent)
+    this.cardFront.setAttribute('aria-label', 'Learn more about ' + cardFrontContent)
 
-    // cardFront is a button and receives keyboard focus
     this.cardFront.addEventListener('blur', this.blurEventListener.bind(this))
     this.cardFront.addEventListener('focus', this.focusEventListener.bind(this))
 
@@ -63,13 +64,9 @@ const handleCardBlur = (element) => {
 }
 
 const Cards = () => {
-  const notMobile = window.matchMedia('(min-width: 768px)')
-
-  if(notMobile.matches) {
-    document.querySelectorAll('[dk-card]').forEach( (card) => {
-      new DKCard(card)
-    })
-  }
+  Array.from(document.querySelectorAll('[dk-card]')).forEach( (card) => {
+    new DKCard(card as HTMLElement)
+  })
 }
 
 export default Cards

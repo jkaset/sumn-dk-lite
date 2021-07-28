@@ -123,8 +123,8 @@ class Dialog {
 }
 
 function DialogCreator() {
-  Array.from(document.querySelectorAll('[dk-dialog]')).forEach((element: HTMLElement) => {
-    new Dialog(element)
+  Array.from(document.querySelectorAll('[dk-dialog]')).forEach((element) => {
+    new Dialog(element as HTMLElement)
   })
 }
 

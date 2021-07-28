@@ -17,10 +17,6 @@ const direction = {
   40: 1
 }
 
-interface tabProperties {
-  index: number
-}
-
 class DKTabs {
   element: HTMLElement
   tabs: HTMLElement[]
@@ -28,7 +24,6 @@ class DKTabs {
   tablist: Element
 
   constructor(element: HTMLElement) {
-
     this.element = element
     const originalTabs = this.element.querySelectorAll('[dk-tabpanel-id]')
     originalTabs.forEach( (tab) => {
@@ -38,6 +33,7 @@ class DKTabs {
     this.tabs = Array.from(this.element.querySelectorAll('[dk-tabpanel-id]'))
     this.panels = this.element.querySelectorAll('[dk-tab-id]')
     this.tablist = this.element.querySelector('[dk-tablist]')
+
     this.create()
   }
 
@@ -49,10 +45,10 @@ class DKTabs {
       let tabpanelId = tab.getAttribute('dk-tabpanel-id')
       tab.setAttribute('aria-controls', tabpanelId)
 
-      tab.addEventListener('click', this.clickEventListener)
+      tab.addEventListener('click', this.clickEventListener, true)
       tab.addEventListener('keydown', this.keydownEventListener)
       tab.addEventListener('keyup', this.keyupEventListener)
-      tab.addEventListener('focus', this.checkTabFocus.bind(this))
+      tab.addEventListener('focus', this.checkTabFocus.bind(this), true)
 
       if (index === 0) {
         this.activateTab(tab, false)
@@ -62,7 +58,9 @@ class DKTabs {
 
   clickEventListener = (event: MouseEvent) => {
     let clickedTab = event.target as HTMLElement
-    this.activateTab(clickedTab, false)
+    if((this.tabs).includes(clickedTab)){
+      this.activateTab(clickedTab, false)
+    }
   }
 
   keydownEventListener = (event: KeyboardEvent) => {
@@ -118,13 +116,10 @@ class DKTabs {
 
   switchTabOnArrowPress = (event: KeyboardEvent) => {
     const pressedKey = event.keyCode
-    // this.tabs.forEach( (tab) => {
-    //   tab.addEventListener('focus', this.focusEventHandler)
-    // })
+
     if (direction[pressedKey]) {
       let target = event.target as HTMLElement
       let index = this.tabs.indexOf(target)
-      // console.log(this.tabs.indexOf(target))
 
       if (index !== undefined) {
         if (this.tabs[index + direction[pressedKey]]) {
@@ -137,27 +132,10 @@ class DKTabs {
           this.focusFirstTab()
         }
       }
-
-      // if (target.index !== undefined) {
-      //   if (this.tabs[target.index + direction[pressedKey]]) {
-      //     this.tabs[target.index + direction[pressedKey]].focus()
-      //   }
-      //   else if (pressedKey === keys.left || pressedKey === keys.up) {
-      //     this.focusLastTab()
-      //   }
-      //   else if (pressedKey === keys.right || pressedKey === keys.down) {
-      //     this.focusFirstTab()
-      //   }
-      // }
-
-      // this.tabs.forEach( (tab) => {
-      //   console.log(tab)
-      // })
     }
   }
 
   activateTab = (tab: HTMLElement, setFocus?: boolean) => {
-    // setFocus = setFocus || true
     this.deactivateTabs()
     tab.removeAttribute('tabindex')
     tab.setAttribute('aria-selected', 'true')
@@ -190,54 +168,42 @@ class DKTabs {
     this.tabs[this.tabs.length - 1].focus()
   }
 
-  // focusEventHandler(event: FocusEvent) {
-  //   let target = event.target
-  //   // setTimeout(this.checkTabFocus, 10, target)
-  //   this.checkTabFocus(target)
-  //   // DKTabs.activateTab(target)
-  // }
+  checkTabFocus(event: FocusEvent & { target: HTMLElement }) {
 
-  checkTabFocus(event: FocusEvent) {
-  // checkTabFocus(target: HTMLElement) {
     const focused = document.activeElement
-    let target = event.target
-    // console.log(focused)
-    // this.activateTab(target as HTMLElement, false)
-    // this.activateTab(event.target as HTMLElement, false)
-    if (target === focused) {
-      //   this.activateTab(target as HTMLElement, false)
-      //   console.log('activated!')
-      // }
-      // this.deactivateTabs()
+    let tgt = event.target
 
+    if (tgt === focused) {
 
       this.tabs.forEach( (tab) => {
         tab.setAttribute('tabindex', '-1')
         tab.setAttribute('aria-selected', 'false')
         tab.removeEventListener('focus', this.checkTabFocus)
       })
+
       this.panels.forEach( (panel) => {
         panel.setAttribute('hidden', 'hidden')
       })
 
-      // console.log(tab)
-      event.target.removeAttribute('tabindex')
-      event.target.setAttribute('aria-selected', 'true')
-      let controls = event.target.getAttribute('aria-controls')
+      tgt.removeAttribute('tabindex')
+      tgt.setAttribute('aria-selected', 'true')
+
+      let controls = tgt.getAttribute('aria-controls')
       let controlledTabpanel = document.getElementById(controls)
+
       if (controlledTabpanel !== null) {
         controlledTabpanel.removeAttribute('hidden')
       }
-      // if (setFocus === true) {
-        event.target.focus()
-      // }
+
+      tgt.focus()
+
     }
   }
 }
 
 const Tabs = () => {
-  document.querySelectorAll('[dk-tabs]').forEach( (tabgroup) => {
-    new DKTabs(tabgroup)
+  Array.from(document.querySelectorAll('[dk-tabs]')).forEach((tabgroup) => {
+    new DKTabs(tabgroup as HTMLElement)
   })
 }
 

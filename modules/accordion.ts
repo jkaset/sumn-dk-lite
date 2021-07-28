@@ -34,13 +34,13 @@ const openAccordion = function (toggle: Element, group: Element | null) {
   }, 375)
 }
 
-const addToggleEventListener = function (toggle: Element, group: Element | null) {
+const addToggleEventListener = function (toggle: HTMLElement, group: Element | null) {
   toggle.addEventListener('click', function (_event: MouseEvent) {
     isExpanded(toggle) ? closeAccordion(toggle) : openAccordion(toggle, group)
   })
 }
 
-const addAccordionEventListener = function (accordion: Element, toggle: Element, group: Element | null) {
+const addAccordionEventListener = function (accordion: HTMLElement, toggle: Element, group: Element | null) {
   accordion.addEventListener('keydown', function (event: KeyboardEvent) {
     if (event.key === ENTER_KEY && event.target === toggle) {
       event.preventDefault()
@@ -50,12 +50,12 @@ const addAccordionEventListener = function (accordion: Element, toggle: Element,
 }
 
 const Accordion = () => {
-  document.querySelectorAll('[dk-accordion]').forEach((accordion: HTMLElement) => {
+  Array.from(document.querySelectorAll('[dk-accordion]')).forEach((accordion: Element) => {
     const toggle: Element = convertTag(accordion.children[0], 'button')
     const group: HTMLElement | null = accordion.closest('[dk-accordion-group]')
     initialToggleExpanded(toggle)
-    addToggleEventListener(toggle, group)
-    addAccordionEventListener(accordion, toggle, group)
+    addToggleEventListener(toggle as HTMLElement, group)
+    addAccordionEventListener(accordion as HTMLElement, toggle, group)
   })
 }
 
