@@ -123,7 +123,9 @@ parcelRequire = (function (modules, cache, entry, globalName) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.access = exports.convertTag = exports.focusableSelectors = void 0;
+exports.throttle = exports.access = exports.convertTag = exports.focusableSelectors = void 0;
+/* eslint-disable */
+
 exports.focusableSelectors = ['a[href]:not([tabindex^="-"])', 'area[href]:not([tabindex^="-"])', 'input:not([type="hidden"]):not([type="radio"]):not([disabled]):not([tabindex^="-"])', 'input[type="radio"]:not([disabled]):not([tabindex^="-"]):checked', 'select:not([disabled]):not([tabindex^="-"])', 'textarea:not([disabled]):not([tabindex^="-"])', 'button:not([disabled]):not([tabindex^="-"])', 'iframe:not([tabindex^="-"])', 'audio[controls]:not([tabindex^="-"])', 'video[controls]:not([tabindex^="-"])', '[contenteditable]:not([tabindex^="-"])', '[tabindex]:not([tabindex^="-"])'];
 
 var convertTag = function convertTag(el, tag) {
@@ -140,10 +142,10 @@ var convertTag = function convertTag(el, tag) {
 
 exports.convertTag = convertTag; // https://gist.github.com/patrickfox/ee5a0d093e0ab9f76441f8339ab4b8e1
 
-var access = function access(el, place_focus_before) {
-  var focus_el, focus_method, ogti, onblur_el, onblur_temp_el, temp_el;
+var access = function access(el, placeFocusBefore) {
+  var focusMethod, ogti, tempEl;
 
-  onblur_el = function onblur_el(e) {
+  var onblurEl = function onblurEl(e) {
     if (el.getAttribute('data-ogti')) {
       el.setAttribute('tabindex', ogti);
     } else {
@@ -151,33 +153,33 @@ var access = function access(el, place_focus_before) {
     }
 
     el.removeAttribute('data-ogti');
-    el.removeEventListener('focusout', focus_method);
+    el.removeEventListener('focusout', focusMethod);
   };
 
-  onblur_temp_el = function onblur_temp_el(e) {
-    temp_el.removeEventListener('focusout', focus_method);
-    temp_el.parentNode.removeChild(temp_el);
+  var onblurTempEl = function onblurTempEl(e) {
+    tempEl.removeEventListener('focusout', focusMethod);
+    tempEl.parentNode.removeChild(tempEl);
   };
 
-  focus_el = function focus_el(the_el) {
-    the_el.setAttribute('tabindex', '-1');
-    the_el.addEventListener('focusout', focus_method);
-    the_el.focus();
+  var focusEl = function focusEl(theEl) {
+    theEl.setAttribute('tabindex', '-1');
+    theEl.addEventListener('focusout', focusMethod);
+    theEl.focus();
   };
 
-  focus_method = onblur_el;
+  focusMethod = onblurEl;
 
-  if (place_focus_before) {
-    temp_el = document.createElement('span');
+  if (placeFocusBefore) {
+    tempEl = document.createElement('span');
 
-    if (typeof place_focus_before === 'string') {
-      temp_el.innerHTML = place_focus_before;
+    if (typeof placeFocusBefore === 'string') {
+      tempEl.innerHTML = placeFocusBefore;
     }
 
-    temp_el.setAttribute('style', 'position: absolute;height: 1px;width: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0 0 0 0);border: 0;');
-    temp_el = el.parentNode.insertBefore(temp_el, el);
-    focus_method = onblur_temp_el;
-    focus_el(temp_el);
+    tempEl.setAttribute('style', 'position: absolute;height: 1px;width: 1px;margin: -1px;padding: 0;overflow: hidden;clip: rect(0 0 0 0);border: 0;');
+    tempEl = el.parentNode.insertBefore(tempEl, el);
+    focusMethod = onblurTempEl;
+    focusEl(tempEl);
   } else {
     ogti = el.getAttribute('tabindex');
 
@@ -185,11 +187,26 @@ var access = function access(el, place_focus_before) {
       el.setAttribute('data-ogti', ogti);
     }
 
-    focus_el(el);
+    focusEl(el);
   }
 };
 
 exports.access = access;
+
+function throttle(callbackFunction, limit) {
+  var tick = false;
+  return function () {
+    if (!tick) {
+      callbackFunction();
+      tick = true;
+      setTimeout(function () {
+        tick = false;
+      }, limit);
+    }
+  };
+}
+
+exports.throttle = throttle;
 },{}],"modules/convertTags.ts":[function(require,module,exports) {
 "use strict";
 
@@ -200,20 +217,19 @@ Object.defineProperty(exports, "__esModule", {
 var helpers_1 = require("../utils/helpers");
 
 var ConvertTags = function ConvertTags() {
-  var nodesToConvert = document.querySelectorAll('[dk-convert-tag]');
-
-  for (var i = 0; i < nodesToConvert.length; i++) {
-    var thisItem = nodesToConvert[i];
-    var desiredTag = thisItem.getAttribute('dk-convert-tag');
+  Array.from(document.querySelectorAll('[dk-convert-tag]')).forEach(function (node) {
+    var desiredTag = node.getAttribute('dk-convert-tag');
 
     if (desiredTag !== '#' && desiredTag !== null) {
-      thisItem = helpers_1.convertTag(thisItem, desiredTag);
+      node = helpers_1.convertTag(node, desiredTag);
+    } else {
+      console.warn('Please specify desired tag');
     }
 
     if (desiredTag === 'button') {
-      thisItem.setAttribute('type', 'button');
+      node.setAttribute('type', 'button');
     }
-  }
+  });
 };
 
 exports.default = ConvertTags;
@@ -1041,10 +1057,10 @@ function () {
         tab.setAttribute('role', 'tab');
         var tabpanelId = tab.getAttribute('dk-tabpanel-id');
         tab.setAttribute('aria-controls', tabpanelId);
-        tab.addEventListener('click', _this.clickEventListener);
+        tab.addEventListener('click', _this.clickEventListener, true);
         tab.addEventListener('keydown', _this.keydownEventListener);
         tab.addEventListener('keyup', _this.keyupEventListener);
-        tab.addEventListener('focus', _this.checkTabFocus.bind(_this));
+        tab.addEventListener('focus', _this.checkTabFocus.bind(_this), true);
 
         if (index === 0) {
           _this.activateTab(tab, false);
@@ -1055,7 +1071,9 @@ function () {
     this.clickEventListener = function (event) {
       var clickedTab = event.target;
 
-      _this.activateTab(clickedTab, false);
+      if (_this.tabs.includes(clickedTab)) {
+        _this.activateTab(clickedTab, false);
+      }
     };
 
     this.keydownEventListener = function (event) {
@@ -1118,15 +1136,12 @@ function () {
     };
 
     this.switchTabOnArrowPress = function (event) {
-      var pressedKey = event.keyCode; // this.tabs.forEach( (tab) => {
-      //   tab.addEventListener('focus', this.focusEventHandler)
-      // })
+      var pressedKey = event.keyCode;
 
       if (direction[pressedKey]) {
         var target = event.target;
 
-        var index = _this.tabs.indexOf(target); // console.log(this.tabs.indexOf(target))
-
+        var index = _this.tabs.indexOf(target);
 
         if (index !== undefined) {
           if (_this.tabs[index + direction[pressedKey]]) {
@@ -1136,26 +1151,11 @@ function () {
           } else if (pressedKey === keys.right || pressedKey === keys.down) {
             _this.focusFirstTab();
           }
-        } // if (target.index !== undefined) {
-        //   if (this.tabs[target.index + direction[pressedKey]]) {
-        //     this.tabs[target.index + direction[pressedKey]].focus()
-        //   }
-        //   else if (pressedKey === keys.left || pressedKey === keys.up) {
-        //     this.focusLastTab()
-        //   }
-        //   else if (pressedKey === keys.right || pressedKey === keys.down) {
-        //     this.focusFirstTab()
-        //   }
-        // }
-        // this.tabs.forEach( (tab) => {
-        //   console.log(tab)
-        // })
-
+        }
       }
     };
 
     this.activateTab = function (tab, setFocus) {
-      // setFocus = setFocus || true
       _this.deactivateTabs();
 
       tab.removeAttribute('tabindex');
@@ -1201,28 +1201,15 @@ function () {
     this.panels = this.element.querySelectorAll('[dk-tab-id]');
     this.tablist = this.element.querySelector('[dk-tablist]');
     this.create();
-  } // focusEventHandler(event: FocusEvent) {
-  //   let target = event.target
-  //   // setTimeout(this.checkTabFocus, 10, target)
-  //   this.checkTabFocus(target)
-  //   // DKTabs.activateTab(target)
-  // }
-
+  }
 
   DKTabs.prototype.checkTabFocus = function (event) {
-    var _this = this; // checkTabFocus(target: HTMLElement) {
-
+    var _this = this;
 
     var focused = document.activeElement;
-    var target = event.target; // console.log(focused)
-    // this.activateTab(target as HTMLElement, false)
-    // this.activateTab(event.target as HTMLElement, false)
+    var tgt = event.target;
 
-    if (target === focused) {
-      //   this.activateTab(target as HTMLElement, false)
-      //   console.log('activated!')
-      // }
-      // this.deactivateTabs()
+    if (tgt === focused) {
       this.tabs.forEach(function (tab) {
         tab.setAttribute('tabindex', '-1');
         tab.setAttribute('aria-selected', 'false');
@@ -1230,19 +1217,17 @@ function () {
       });
       this.panels.forEach(function (panel) {
         panel.setAttribute('hidden', 'hidden');
-      }); // console.log(tab)
-
-      event.target.removeAttribute('tabindex');
-      event.target.setAttribute('aria-selected', 'true');
-      var controls = event.target.getAttribute('aria-controls');
+      });
+      tgt.removeAttribute('tabindex');
+      tgt.setAttribute('aria-selected', 'true');
+      var controls = tgt.getAttribute('aria-controls');
       var controlledTabpanel = document.getElementById(controls);
 
       if (controlledTabpanel !== null) {
         controlledTabpanel.removeAttribute('hidden');
-      } // if (setFocus === true) {
+      }
 
-
-      event.target.focus(); // }
+      tgt.focus();
     }
   };
 
@@ -1250,7 +1235,7 @@ function () {
 }();
 
 var Tabs = function Tabs() {
-  document.querySelectorAll('[dk-tabs]').forEach(function (tabgroup) {
+  Array.from(document.querySelectorAll('[dk-tabs]')).forEach(function (tabgroup) {
     new DKTabs(tabgroup);
   });
 };
@@ -1313,7 +1298,7 @@ var addAccordionEventListener = function addAccordionEventListener(accordion, to
 };
 
 var Accordion = function Accordion() {
-  document.querySelectorAll('[dk-accordion]').forEach(function (accordion) {
+  Array.from(document.querySelectorAll('[dk-accordion]')).forEach(function (accordion) {
     var toggle = helpers_1.convertTag(accordion.children[0], 'button');
     var group = accordion.closest('[dk-accordion-group]');
     initialToggleExpanded(toggle);
@@ -1333,7 +1318,7 @@ Object.defineProperty(exports, "__esModule", {
 var helpers_1 = require("../utils/helpers");
 
 var Anchors = function Anchors() {
-  document.querySelectorAll('[href^="#"]:not([href="#"])').forEach(function (anchorLink) {
+  Array.from(document.querySelectorAll('[href^="#"]:not([href="#"])')).forEach(function (anchorLink) {
     anchorLink.addEventListener('click', function () {
       var section = document.querySelector(anchorLink.getAttribute('href'));
 
@@ -1367,7 +1352,7 @@ function () {
     this.card = card; // each card should be a list item
 
     if (this.card.tagName !== 'LI') {
-      console.warn('Cards must be list items');
+      console.warn('Cards should be list items');
     } // convert card FRONTS to buttons
 
 
@@ -1378,12 +1363,11 @@ function () {
     }
 
     this.cardFront = helpers_1.convertTag(this.cardFront, 'button');
-    this.cardFront.setAttribute('role', 'button');
+    this.cardFront.setAttribute('type', 'button');
     this.cardFront.setAttribute('tabindex', '0'); // give cardFront aria-label="Learn more about {card front content}"
 
     var cardFrontContent = this.cardFront.textContent || '';
-    this.cardFront.setAttribute('aria-label', 'Learn more about how we help you ' + cardFrontContent); // cardFront is a button and receives keyboard focus
-
+    this.cardFront.setAttribute('aria-label', 'Learn more about ' + cardFrontContent);
     this.cardFront.addEventListener('blur', this.blurEventListener.bind(this));
     this.cardFront.addEventListener('focus', this.focusEventListener.bind(this));
     this.card.addEventListener('click', this.clickEventListener.bind(this));
@@ -1424,13 +1408,9 @@ var handleCardBlur = function handleCardBlur(element) {
 };
 
 var Cards = function Cards() {
-  var notMobile = window.matchMedia('(min-width: 768px)');
-
-  if (notMobile.matches) {
-    document.querySelectorAll('[dk-card]').forEach(function (card) {
-      new DKCard(card);
-    });
-  }
+  Array.from(document.querySelectorAll('[dk-card]')).forEach(function (card) {
+    new DKCard(card);
+  });
 };
 
 exports.default = Cards;
@@ -1624,7 +1604,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64271" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64525" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
