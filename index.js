@@ -1,15 +1,19 @@
 import App from './app'
 
-const LOCAL_JS_URL = 'http://localhost:1234/index.js'
 const isStaging = window.location.host.match(/webflow.io/)
 
 if (isStaging && !window.__DK__) {
-  $.getScript(LOCAL_JS_URL)
-    .done(() => {
-      process.env.NODE_ENV === 'production' || console.log('🙊 DK Lite Started')
-      window.__DK__ = true
-    })
-    .fail(App)
+  const script = document.createElement('script')
+  script.src = 'http://localhost:1234/index.js'
+
+  document.body.appendChild(script)
+  window.__DK__ = true
+
+  script.onload = () => {
+    console.log('🙊 DK Lite Started')
+  }
+
+  script.onerror = App()
 } else {
   App()
 }
