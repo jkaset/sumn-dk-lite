@@ -18,5 +18,5 @@ To convert an existing element into a DK Lite module, simply add one or more dat
 `yarn build`
 
 ## Technology Used
-* Parcel - compiling code
+* ESBuild - compiling code
 * JS-Cookie - handling modal and dialog visibility
