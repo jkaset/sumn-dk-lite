@@ -45,7 +45,7 @@ class DKTabs {
       let tabpanelId = tab.getAttribute('dk-tabpanel-id')
       tab.setAttribute('aria-controls', tabpanelId)
 
-      tab.addEventListener('click', this.clickEventListener, true)
+      tab.addEventListener('click', this.clickEventListener)
       tab.addEventListener('keydown', this.keydownEventListener)
       tab.addEventListener('keyup', this.keyupEventListener)
       tab.addEventListener('focus', this.checkTabFocus.bind(this), true)
@@ -57,10 +57,12 @@ class DKTabs {
   }
 
   clickEventListener = (event: MouseEvent) => {
-    let clickedTab = event.target as HTMLElement
-    if((this.tabs).includes(clickedTab)){
-      this.activateTab(clickedTab, false)
-    }
+    let clickedElement = event.target as HTMLElement
+    (this.tabs).forEach( (tab) => {
+      if (tab.contains(clickedElement)) {
+        this.activateTab(tab)
+      }
+    })
   }
 
   keydownEventListener = (event: KeyboardEvent) => {
