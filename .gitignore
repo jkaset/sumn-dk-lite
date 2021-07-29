@@ -9,3 +9,4 @@ server/certs
 .vscode
 .tool-versions
 releases/
+public/index.js.map
