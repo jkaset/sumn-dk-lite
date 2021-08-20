@@ -11,6 +11,7 @@ if (isStaging && !window.__DK__) {
 
   script.onload = () => {
     console.log('🙊 DK Lite Started')
+    document.getElementById('dk-script').remove()
   }
 
   script.onerror = App()

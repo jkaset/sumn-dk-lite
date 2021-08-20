@@ -937,6 +937,11 @@
   };
   var dropdowns_default = Dropdowns;
 
+  // modules/audioPlayer.ts
+  var AudioPlayer = () => {
+  };
+  var audioPlayer_default = AudioPlayer;
+
   // app.js
   var App = () => {
     convertTags_default();
@@ -947,6 +952,7 @@
     anchors_default();
     cards_default();
     dropdowns_default();
+    audioPlayer_default();
   };
   var app_default = App;
 
@@ -959,12 +965,13 @@
     window.__DK__ = true;
     script.onload = () => {
       console.log("\u{1F64A} DK Lite Started");
+      document.getElementById("dk-script").remove();
     };
     script.onerror = app_default();
   } else {
     app_default();
   }
-  var DK_LITE_default = null;
+  var sumn_dk_lite_default = null;
 })();
 /*!
  * JavaScript Cookie v2.2.1
